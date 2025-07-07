@@ -14,17 +14,25 @@ const App: React.FC = () => {
   const [error, setError] = useState(false)
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null)
 
-  const handleSearch = async (query: string) => {
+  const handleSearch = async (formData: FormData) => {
+    const query = formData.get('query')?.toString().trim() || ''
+
+    if (!query) {
+      toast.error('Please enter your search query.')
+      return
+    }
+
     setMovies([])
     setError(false)
     setLoading(true)
+
     try {
       const results = await fetchMovies(query)
       if (results.length === 0) {
         toast.error('No movies found for your request.')
       }
       setMovies(results)
-    } catch (err) {
+    } catch {
       setError(true)
       toast.error('There was an error, please try again...')
     } finally {
@@ -42,16 +50,13 @@ const App: React.FC = () => {
 
   return (
     <div>
-      <SearchBar onSubmit={handleSearch} />
+      <SearchBar action={handleSearch} />
 
       {loading && <Loader />}
-
       {!loading && error && <ErrorMessage />}
-
       {!loading && !error && movies.length > 0 && (
         <MovieGrid movies={movies} onSelect={handleSelect} />
       )}
-
       {selectedMovie && (
         <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
       )}
@@ -60,4 +65,3 @@ const App: React.FC = () => {
 }
 
 export default App
-

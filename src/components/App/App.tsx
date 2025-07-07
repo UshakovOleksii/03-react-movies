@@ -14,10 +14,9 @@ const App: React.FC = () => {
   const [error, setError] = useState(false)
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null)
 
-  const handleSearch = async (formData: FormData) => {
-    const query = formData.get('query')?.toString().trim() || ''
-
-    if (!query) {
+  const handleSearch = async (query: string) => {
+    const trimmed = query.trim()
+    if (!trimmed) {
       toast.error('Please enter your search query.')
       return
     }
@@ -27,7 +26,7 @@ const App: React.FC = () => {
     setLoading(true)
 
     try {
-      const results = await fetchMovies(query)
+      const results = await fetchMovies(trimmed)
       if (results.length === 0) {
         toast.error('No movies found for your request.')
       }
@@ -50,7 +49,7 @@ const App: React.FC = () => {
 
   return (
     <div>
-      <SearchBar action={handleSearch} />
+      <SearchBar onSubmit={handleSearch} />
 
       {loading && <Loader />}
       {!loading && error && <ErrorMessage />}
